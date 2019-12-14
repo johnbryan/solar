@@ -6,7 +6,7 @@ import urllib.request
 
 # API docs
 # https://www.solaredge.com/sites/default/files/se_monitoring_api.pdf
-def get_current_generation(request):
+def get_current_generation(request=''):
   siteId = '1344511'
   apiKey = 'FZ9I7JU457CVMJ3Y8VASQQ8F6ZHZU23S'  #os.environ.get('SOLAR_API_KEY')
   apiKeyParam = 'api_key='+apiKey
@@ -21,13 +21,16 @@ def get_current_generation(request):
   resp = json.loads(response)
   overviewData = resp['overview']
   currentPower = overviewData['currentPower']['power']
-  lifeTimeEnergy = overviewData['lifeTimeData']['energy']
+  lastDayKwh = overviewData['lastDayData']['energy'] / 1000
+  lifeTimeKwh = overviewData['lifeTimeData']['energy'] / 1000
 
-  reply = 'Currently ' + str(currentPower) + ' watts. Total ' + str(lifeTimeEnergy)
-  replyObj = {"fulfillmentText": reply}
+  reply = ('Currently ' + str(currentPower) + ' watts. '
+          'Today was ' + str(lastDayKwh) + ' kilowatt-hours. '
+          'Lifetime total ' + str(lifeTimeKwh) + ' kilowatt-hours.')
+  replyObj = {'fulfillmentText': reply}
   return str(replyObj)
 
-print(get_current_generation(""))
+print(get_current_generation())
 
 # {
 #   "overview": {
