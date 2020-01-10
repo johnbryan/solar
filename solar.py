@@ -1,8 +1,12 @@
-from datetime import datetime, timezone
-import json
-import math
 import os
-import urllib.request
+import requests
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/',  methods=['GET', 'POST'])
+def index():
+  return get_current_generation()
 
 # API docs
 # https://www.solaredge.com/sites/default/files/se_monitoring_api.pdf
@@ -17,8 +21,7 @@ def get_current_generation(request=''):
   # energyUrl = baseUrl + '/energy?timeUnit=DAY&startDate=2019-11-28&endDate=2019-12-10&' + apiKeyParam
   # powerUrl = baseUrl + '/power?startTime=2013-05-5%2011:00:00&endTime=2013-05-05%2013:00:00&' + apiKeyParam
 
-  response = urllib.request.urlopen(overviewUrl).read()
-  resp = json.loads(response)
+  resp = requests.get(overviewUrl).json()
   overviewData = resp['overview']
   currentPower = overviewData['currentPower']['power']
   lastDayKwh = overviewData['lastDayData']['energy'] / 1000
@@ -30,7 +33,11 @@ def get_current_generation(request=''):
   replyObj = {'fulfillmentText': reply}
   return str(replyObj)
 
-print(get_current_generation())
+if __name__ == '__main__':
+  # copied from https://cloud.google.com/run/docs/quickstarts/build-and-deploy:
+  app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8080)))
+
+#print(get_current_generation())
 
 # {
 #   "overview": {
