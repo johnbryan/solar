@@ -4,6 +4,7 @@ from flask import Flask
 
 app = Flask(__name__)
 
+# Dialogflow invokes with POST
 @app.route('/',  methods=['GET', 'POST'])
 def index():
   return get_current_generation()
@@ -17,9 +18,6 @@ def get_current_generation(request=''):
 
   baseUrl = 'https://monitoringapi.solaredge.com/site/' + siteId
   overviewUrl = baseUrl + '/overview?' + apiKeyParam
-  # detailsUrl = baseUrl + '/details?' + apiKeyParam
-  # energyUrl = baseUrl + '/energy?timeUnit=DAY&startDate=2019-11-28&endDate=2019-12-10&' + apiKeyParam
-  # powerUrl = baseUrl + '/power?startTime=2013-05-5%2011:00:00&endTime=2013-05-05%2013:00:00&' + apiKeyParam
 
   resp = requests.get(overviewUrl).json()
   overviewData = resp['overview']
@@ -38,28 +36,3 @@ if __name__ == '__main__':
   app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8080)))
 
 #print(get_current_generation())
-
-# {
-#   "overview": {
-#     "lastUpdateTime":"2013-10-01 02:37:47",
-#     "lifeTimeData":{
-#       "energy":761985.75,
-#       "revenue":946.13104
-#     },
-#     "lastYearData":{
-#       "energy":761985.8,
-#       "revenue":0.0
-#     },
-#     "lastMonthData":{
-#       "energy":492736.7,
-#       "revenue":0.0
-#     },
-#     "lastDayData":{
-#       "energy":0.0,
-#       "revenue":0.0
-#     },
-#     "currentPower":{
-#       "power":0.0
-#     }
-#   }
-# }
