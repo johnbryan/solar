@@ -27,9 +27,10 @@ def get_current_generation(request=''):
   lastDayKwh = round(overviewData['lastDayData']['energy'] / 1000)
   lifeTimeKwh = round(overviewData['lifeTimeData']['energy'] / 1000)
 
-  now = datetime.datetime.now()
+  # Heuristic to decide whether today's production is done or not, so we can
+  # phrase accordingly.
   prefix = 'So far today, '
-  if now.hour >= 16 and currentPower == 0:
+  if datetime.datetime.now().hour >= 16 and currentKw == 0:
     prefix = 'Today was '
 
   reply = prefix + str(lastDayKwh) + ' kilowatt-hours.'

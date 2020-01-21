@@ -9,8 +9,9 @@ Build container image then run locally to test, and upload to cloud registry:
 - `docker run -d -p 5000:5000 solar-check` (-d runs as daemon, remove to run in terminal where you stop with ctrl+c)
 - `docker ps -a` (view recently run/currently running containers)
 - `gunicorn solar:app` (run locally as a non-containerized program)
+- Then create Cloud Run service via GCP console - did not work...
 
-Actually
+Actually this is how I got it working:
 - `gcloud builds submit --tag us.gcr.io/check-b9591/solar-check` instead of docker build/push
 - `gcloud run deploy --image us.gcr.io/check-b9591/solar-check --platform managed`
   to start a service. I was originally starting via cloud console. Never figured
