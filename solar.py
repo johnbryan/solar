@@ -1,6 +1,7 @@
 import os
 import requests
 from flask import Flask
+import datetime
 
 app = Flask(__name__)
 
@@ -12,22 +13,28 @@ def index():
 # API docs
 # https://www.solaredge.com/sites/default/files/se_monitoring_api.pdf
 def get_current_generation(request=''):
-  siteId = '1344511'
-  apiKey = 'FZ9I7JU457CVMJ3Y8VASQQ8F6ZHZU23S'  #os.environ.get('SOLAR_API_KEY')
-  apiKeyParam = 'api_key='+apiKey
+  # Environment variables set in the Cloud Run config.
+  siteId = os.environ.get('SITE_ID')
+  apiKey = os.environ.get('SOLAR_API_KEY')
 
+  apiKeyParam = 'api_key='+apiKey
   baseUrl = 'https://monitoringapi.solaredge.com/site/' + siteId
   overviewUrl = baseUrl + '/overview?' + apiKeyParam
 
   resp = requests.get(overviewUrl).json()
   overviewData = resp['overview']
-  currentPower = overviewData['currentPower']['power']
-  lastDayKwh = overviewData['lastDayData']['energy'] / 1000
-  lifeTimeKwh = overviewData['lifeTimeData']['energy'] / 1000
+  currentKw = round(overviewData['currentPower']['power'] / 1000, 1)
+  lastDayKwh = round(overviewData['lastDayData']['energy'] / 1000)
+  lifeTimeKwh = round(overviewData['lifeTimeData']['energy'] / 1000)
 
-  reply = ('Currently ' + str(currentPower) + ' watts. '
-          'Today was ' + str(lastDayKwh) + ' kilowatt-hours. '
-          'Lifetime total ' + str(lifeTimeKwh) + ' kilowatt-hours.')
+  now = datetime.datetime.now()
+  prefix = 'So far today, '
+  if now.hour >= 16 and currentPower == 0:
+    prefix = 'Today was '
+
+  reply = prefix + str(lastDayKwh) + ' kilowatt-hours.'
+
+  # Format the reply in the way Google Assistant needs it.
   replyObj = {'fulfillmentText': reply}
   return str(replyObj)
 
